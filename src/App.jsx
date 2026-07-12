@@ -61,7 +61,7 @@ export default function App() {
       id: '1',
       name: 'Sarah Jenkins',
       relationship: 'Mother',
-      phone: '(555) 012-3456',
+      phone: '+91 98200 12345',
       isPrimary: true,
       avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBua-1Oe35cRdz-tDvGne_YdSC6BhohrEaeb6LiVA0s-Y3sgSEp8dTcWrgTdnmxJfv5EiY0PcT5uQ4ng8Hcz_i9Be5bBlmfqz4MCTOrxPiRh7cQ940NoJ1wEXAz86wNshrmgo6_W198KJ52exa93tQqxvtZ4HWoVwLVhpIcKBEXC51yPlATZ4HQevzyFbGU4Js57J8B2h2OzrJ9sgKT3-u_dT2VTkvjG0hF8cOlicHXl1HvV0GDlnhKxLOreovmcR3LwQi2UrRrNlc'
     },
@@ -69,7 +69,7 @@ export default function App() {
       id: '2',
       name: 'David Miller',
       relationship: 'Partner',
-      phone: '(555) 045-6789',
+      phone: '+91 98199 87654',
       isPrimary: false,
       avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDazQU2sGBMCh8qVd0MgrJaZC5NQm3-EXeizrOVd1IOzQ7vnbpBGn9_kr2MZE_fr-2lFmwsptzrl0-I_JJCymfPj3zGDBpzJ0rh0BkwBKz-ON9D3GY6kD3k0SgxuLkuZHFA1WFgAeFR-jPmEZ5qzU4-Rhot8ORZnYtyyTbq4UJe8bYU2wZiTlB0_PQOQ3pLmMqp3CdiZx9sfwAZj-v1vl1HTbpVpt87Er1S04xIlCT0hEeXB_oqaaxDqTDt9fdU8OvRdyHcl3d64yQ'
     },
@@ -77,9 +77,9 @@ export default function App() {
       id: '3',
       name: 'Robert Chen',
       relationship: 'Brother',
-      phone: '(555) 098-7654',
+      phone: '+91 98211 22334',
       isPrimary: false,
-      avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuVvNuGp1EoBUzOov-xKUoLhDGkHyGDvKyibITVfxPnjsbg9Nvq9LcJlB-RBQyj8Xyhv2IUjTEui5-JrhdpZiayIJEIFZCZc9NCUcMfjBAcwSXWfVqAYHmj1TvRfA5AxU6U3COoLirYLPJzbLNzwOSfesOW9-yKux4IWFYsuqiBT1nySGFBm95fnD3DrUDpegy3jLDQMj5qDxy37VqYAFotaYF_ov36kosNNak15tN3Byx7qHkIzTDz0K4U4kRXtn777rKUiZmPWOkY'
+      avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBvNuGp1EoBUzOov-xKUoLhDGkHyGDvKyibITVfxPnjsbg9Nvq9LcJlB-RBQyj8Xyhv2IUjTEui5-JrhdpZiayIJEIFZCZc9NCUcMfjBAcwSXWfVqAYHmj1TvRfA5AxU6U3COoLirYLPJzbLNzwOSfesOW9-yKux4IWFYsuqiBT1nySGFBm95fnD3DrUDpegy3jLDQMj5qDxy37VqYAFotaYF_ov36kosNNak15tN3Byx7qHkIzTDz0K4U4kRXtn777rKUiZmPWOkY'
     }
   ]);
 
@@ -93,8 +93,8 @@ export default function App() {
     weight: '84kg',
     showOnLockScreen: true,
     donor: true,
-    spouseCall: '(555) 012-3456',
-    doctorCall: '(555) 987-6543',
+    spouseCall: '+91 98199 87654',
+    doctorCall: '+91 98199 54321',
     avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAMv2hgwgUkHK_e7mVwtfeoxbtGYIgwDBA45laYpkQkjW-PkLlkobQzbYnpjTBe9ode1jiQ2LSjLYC9g2UznIcoWTMZ3qAfjSXuGaCk8D4qgyX0NcjN7kVWRaiOW-DM6FWASQiozTf26cPsWQ98C8ct060qJMRKa0tr3716BqmLJYR-BakydM4H8mockIJgDJ5P532fqCak8ytPz9WTb2W2-d-ZTuwrPFZElqS15lQ3tuukxpTYSn8-QwW15WYcXyQ1kz2kNL6iFH8',
     allergies: [
       { name: 'Penicillin', severity: 'Severe' },

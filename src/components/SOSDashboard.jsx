@@ -32,6 +32,9 @@ export default function SOSDashboard({ sosTriggered, setSosTriggered, activeServ
           if (navigator.vibrate) {
             navigator.vibrate([200, 100, 200, 100, 500]); // Emergency vibration pattern
           }
+          setTimeout(() => {
+            window.location.href = 'tel:112'; // India's Single Emergency Response number
+          }, 500);
         }
       };
       animFrame = requestAnimationFrame(tick);
@@ -63,8 +66,19 @@ export default function SOSDashboard({ sosTriggered, setSosTriggered, activeServ
     if (navigator.vibrate) {
       navigator.vibrate(200);
     }
+    
+    // Emergency numbers for India (Mumbai/Palghar/Maharashtra region)
+    let phoneNumber = '112'; 
+    if (serviceName === 'Police') {
+      phoneNumber = '100';
+    } else if (serviceName === 'Ambulance') {
+      phoneNumber = '108'; // Maharashtra State Free Ambulance Service
+    } else if (serviceName === 'Fire') {
+      phoneNumber = '101';
+    }
+
     setTimeout(() => {
-      window.location.href = 'tel:911';
+      window.location.href = `tel:${phoneNumber}`;
     }, 500);
   };
 
