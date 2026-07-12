@@ -6,19 +6,55 @@ export default function MedicalIDView({ profile, setProfile }) {
   const [newAllergy, setNewAllergy] = useState({ name: '', severity: 'Moderate' });
   const [newMedication, setNewMedication] = useState({ name: '', info: '' });
   const [newCondition, setNewCondition] = useState('');
+  const [newQuickDial, setNewQuickDial] = useState({ name: '', relation: '', phone: '' });
+
+  const getQuickDials = (p) => {
+    if (p.quickDials && Array.isArray(p.quickDials)) {
+      return p.quickDials;
+    }
+    const dials = [];
+    if (p.spouseCall) dials.push({ name: 'Sarah Thorne', relation: 'Spouse', phone: p.spouseCall });
+    if (p.doctorCall) dials.push({ name: 'Dr. Elena Rodriguez', relation: 'Primary Physician', phone: p.doctorCall });
+    return dials;
+  };
 
   const handleStartEdit = () => {
-    setEditedProfile({ ...profile });
+    const currentDials = getQuickDials(profile);
+    setEditedProfile({ 
+      ...profile, 
+      quickDials: currentDials 
+    });
     setIsEditing(true);
   };
 
   const handleSave = () => {
-    setProfile({ ...editedProfile });
+    const currentDials = getQuickDials(editedProfile);
+    setProfile({ 
+      ...editedProfile, 
+      quickDials: currentDials 
+    });
     setIsEditing(false);
   };
 
   const handleCancel = () => {
     setIsEditing(false);
+  };
+
+  // Quick Dial operations
+  const addQuickDial = () => {
+    if (!newQuickDial.name.trim() || !newQuickDial.phone.trim()) return;
+    const currentDials = getQuickDials(editedProfile);
+    setEditedProfile({
+      ...editedProfile,
+      quickDials: [...currentDials, { ...newQuickDial }]
+    });
+    setNewQuickDial({ name: '', relation: '', phone: '' });
+  };
+
+  const removeQuickDial = (index) => {
+    const currentDials = getQuickDials(editedProfile);
+    const updated = currentDials.filter((_, i) => i !== index);
+    setEditedProfile({ ...editedProfile, quickDials: updated });
   };
 
   const handleToggleLockScreen = (checked) => {
@@ -413,40 +449,76 @@ export default function MedicalIDView({ profile, setProfile }) {
       <section className="mt-xl">
         <h2 className="font-headline-md text-on-surface mb-md">Emergency Quick Dial</h2>
         <div className="space-y-sm">
-          <div className="bg-white p-md rounded-xl border border-outline-variant flex items-center justify-between shadow-sm">
-            <div className="flex items-center gap-md">
-              <div className="w-12 h-12 bg-secondary-fixed rounded-full flex items-center justify-center text-on-secondary-fixed">
-                <span className="material-symbols-outlined">person</span>
+          {getQuickDials(isEditing ? editedProfile : profile).map((dial, index) => (
+            <div key={index} className="bg-white p-md rounded-xl border border-outline-variant flex items-center justify-between shadow-sm">
+              <div className="flex items-center gap-md">
+                <div className="w-12 h-12 bg-secondary-fixed rounded-full flex items-center justify-center text-on-secondary-fixed">
+                  <span className="material-symbols-outlined">person</span>
+                </div>
+                <div>
+                  <p className="font-label-bold text-on-surface">{dial.name}</p>
+                  <p className="text-xs text-secondary">{dial.relation || 'Contact'} • {dial.phone}</p>
+                </div>
               </div>
-              <div>
-                <p className="font-label-bold text-on-surface">Sarah Thorne</p>
-                <p className="text-xs text-secondary">Spouse • {profile.spouseCall}</p>
+              {isEditing ? (
+                <button 
+                  type="button"
+                  onClick={() => removeQuickDial(index)}
+                  className="w-10 h-10 rounded-full text-on-surface-variant hover:text-error flex items-center justify-center hover:bg-error/10"
+                  title="Remove Quick Dial"
+                >
+                  <span className="material-symbols-outlined">delete</span>
+                </button>
+              ) : (
+                <a 
+                  href={`tel:${dial.phone.replace(/[^\d+]/g, '')}`}
+                  className="w-10 h-10 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center hover:bg-secondary-container/90"
+                  title={`Call ${dial.name}`}
+                >
+                  <span className="material-symbols-outlined">call</span>
+                </a>
+              )}
+            </div>
+          ))}
+
+          {/* Add Quick Dial Form when editing */}
+          {isEditing && (
+            <div className="bg-surface-container-low p-md rounded-xl border border-dashed border-outline-variant flex flex-col gap-sm mt-sm">
+              <p className="text-xs font-bold text-secondary">Add New Quick Dial Card</p>
+              <div className="grid grid-cols-2 gap-sm">
+                <input 
+                  type="text" 
+                  placeholder="Contact Name..."
+                  value={newQuickDial.name}
+                  onChange={(e) => setNewQuickDial({ ...newQuickDial, name: e.target.value })}
+                  className="px-sm py-1 border border-outline-variant rounded bg-white text-sm outline-none text-on-surface"
+                />
+                <input 
+                  type="text" 
+                  placeholder="Relation (e.g. Spouse, Doctor)..."
+                  value={newQuickDial.relation}
+                  onChange={(e) => setNewQuickDial({ ...newQuickDial, relation: e.target.value })}
+                  className="px-sm py-1 border border-outline-variant rounded bg-white text-sm outline-none text-on-surface"
+                />
+              </div>
+              <div className="flex gap-sm">
+                <input 
+                  type="tel" 
+                  placeholder="Phone Number (e.g. +91 98000 00000)..."
+                  value={newQuickDial.phone}
+                  onChange={(e) => setNewQuickDial({ ...newQuickDial, phone: e.target.value })}
+                  className="flex-1 px-sm py-1 border border-outline-variant rounded bg-white text-sm outline-none text-on-surface"
+                />
+                <button 
+                  type="button"
+                  onClick={addQuickDial}
+                  className="bg-secondary text-on-secondary text-xs px-md py-1.5 rounded-lg hover:bg-secondary/90 font-bold active:scale-95 transition-transform"
+                >
+                  Add Card
+                </button>
               </div>
             </div>
-            <a 
-              href={`tel:${profile.spouseCall}`}
-              className="w-10 h-10 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center hover:bg-secondary-container/90"
-            >
-              <span className="material-symbols-outlined">call</span>
-            </a>
-          </div>
-          <div className="bg-white p-md rounded-xl border border-outline-variant flex items-center justify-between shadow-sm">
-            <div className="flex items-center gap-md">
-              <div className="w-12 h-12 bg-secondary-fixed rounded-full flex items-center justify-center text-on-secondary-fixed">
-                <span className="material-symbols-outlined">person</span>
-              </div>
-              <div>
-                <p className="font-label-bold text-on-surface">Dr. Elena Rodriguez</p>
-                <p className="text-xs text-secondary">Primary Physician • {profile.doctorCall}</p>
-              </div>
-            </div>
-            <a 
-              href={`tel:${profile.doctorCall}`}
-              className="w-10 h-10 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center hover:bg-secondary-container/90"
-            >
-              <span className="material-symbols-outlined">call</span>
-            </a>
-          </div>
+          )}
         </div>
       </section>
 
