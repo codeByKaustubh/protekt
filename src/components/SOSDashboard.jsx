@@ -88,6 +88,12 @@ export default function SOSDashboard({ sosTriggered, setSosTriggered, activeServ
     setHoldProgress(289);
   };
 
+  const lat = location.rawCoords?.latitude || 51.5238;
+  const lon = location.rawCoords?.longitude || -0.1585;
+  const delta = 0.003;
+  const bbox = `${lon - delta}%2C${lat - delta}%2C${lon + delta}%2C${lat + delta}`;
+  const mapUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat}%2C${lon}`;
+
   return (
     <div className="flex flex-col gap-xl max-w-lg mx-auto w-full fade-in">
       {/* Location Card */}
@@ -105,20 +111,16 @@ export default function SOSDashboard({ sosTriggered, setSosTriggered, activeServ
           <p className="font-headline-md text-headline-md leading-tight text-on-surface">{address}</p>
           <p className="text-on-surface-variant font-body-md opacity-70 mt-1">{coords.lat}, {coords.lng}</p>
         </div>
-        {/* Map Placeholder */}
-        <div className="mt-md h-32 rounded-lg overflow-hidden relative border border-outline-variant">
-          <div 
-            className="w-full h-full bg-cover bg-center transition-transform duration-500 hover:scale-105" 
-            style={{ 
-              backgroundImage: `url('https://lh3.googleusercontent.com/aida-public/AB6AXuDAmV5YSeES5trK_W-hHUKUvTfMRfjdEjjbFX4mT6dE68Y1TcACnDL1jf2T0315525PGWeqAFPJtdxNSAC9nM2GVFTfE717AVt-N9voXLiqDABEK2HKXdju21Z0Jsu1o1GcpUg2tGLu9-Sh3G3n4zAqN2eJjoE_QpfEnAJUgGZ_Ks5SqbVj-cFZfDOLmEiPVMO2vY8fOOUI7GfhMbSuB1S4Ju0kuZZNRMKTrwrYdaUh8y-J2iU0MbCRshWWgdm8K3b5X3W9s8K-zPE')` 
-            }}
-          ></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-          {/* Pulsing Dot in center */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
-            <div className="absolute w-6 h-6 rounded-full bg-primary/30 sos-pulse"></div>
-            <div className="w-3 h-3 rounded-full bg-primary border-2 border-white shadow-md"></div>
-          </div>
+        {/* Live Interactive Map */}
+        <div className="mt-md h-40 rounded-lg overflow-hidden relative border border-outline-variant bg-surface-container">
+          <iframe 
+            title="Live GPS Location Map"
+            width="100%" 
+            height="100%" 
+            src={mapUrl}
+            className="w-full h-full border-none"
+            style={{ filter: 'grayscale(0.1)' }}
+          ></iframe>
         </div>
       </section>
 

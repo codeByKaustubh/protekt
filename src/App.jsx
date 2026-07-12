@@ -61,6 +61,7 @@ export default function App() {
   // Geolocation state
   const [location, setLocation] = useState({
     coords: { lat: '51.5238° N', lng: '0.1585° W' },
+    rawCoords: { latitude: 51.5238, longitude: -0.1585 },
     address: '221B Baker St, London',
     accuracy: 'Default Coordinates'
   });
@@ -76,6 +77,7 @@ export default function App() {
               lat: `${latitude.toFixed(4)}° ${latitude >= 0 ? 'N' : 'S'}`,
               lng: `${longitude.toFixed(4)}° ${longitude >= 0 ? 'E' : 'W'}`
             },
+            rawCoords: { latitude, longitude },
             address: 'GPS Signals Active',
             accuracy: `Accurate to ${Math.round(accuracy)}m`
           });
