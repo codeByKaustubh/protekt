@@ -203,6 +203,32 @@ export default function App() {
     }
   }, [darkMode]);
 
+  const triggerBackgroundAlert = async (customMessage) => {
+    const primaryContacts = contacts.filter(c => c.isPrimary);
+    const alertMessage = customMessage || `[EMERGENCY WARNING] Marcus Thorne has triggered an SOS alert! Location: ${location.address} (${location.coords.lat}, ${location.coords.lng})`;
+
+    console.log("Triggering background alerts to contacts...", primaryContacts);
+
+    for (const contact of primaryContacts) {
+      try {
+        const response = await fetch('/api/send-sos', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            to: contact.phone,
+            message: alertMessage,
+          }),
+        });
+        const data = await response.json();
+        console.log(`Background alert status for ${contact.name}:`, data);
+      } catch (err) {
+        console.warn(`Failed to send background alert to ${contact.name}:`, err);
+      }
+    }
+  };
+
   // Header background states
   const headerBgClass = sosTriggered 
     ? 'bg-error dark:bg-error text-white' 
@@ -275,6 +301,7 @@ export default function App() {
             activeService={activeService}
             setActiveService={setActiveService}
             location={location}
+            triggerBackgroundAlert={triggerBackgroundAlert}
           />
         )}
         {activeTab === 'contacts' && (

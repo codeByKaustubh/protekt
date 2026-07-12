@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-export default function SOSDashboard({ sosTriggered, setSosTriggered, activeService, setActiveService, location }) {
+export default function SOSDashboard({ sosTriggered, setSosTriggered, activeService, setActiveService, location, triggerBackgroundAlert }) {
   const { coords, address, accuracy } = location;
   const [holdProgress, setHoldProgress] = useState(289); // SVG strokeDashoffset: starts at 289 (empty) -> 0 (full)
   const [isHolding, setIsHolding] = useState(false);
@@ -31,6 +31,9 @@ export default function SOSDashboard({ sosTriggered, setSosTriggered, activeServ
           setHoldProgress(0);
           if (navigator.vibrate) {
             navigator.vibrate([200, 100, 200, 100, 500]); // Emergency vibration pattern
+          }
+          if (triggerBackgroundAlert) {
+            triggerBackgroundAlert();
           }
           setTimeout(() => {
             window.location.href = 'tel:112'; // India's Single Emergency Response number
@@ -75,6 +78,11 @@ export default function SOSDashboard({ sosTriggered, setSosTriggered, activeServ
       phoneNumber = '108'; // Maharashtra State Free Ambulance Service
     } else if (serviceName === 'Fire') {
       phoneNumber = '101';
+    }
+
+    if (triggerBackgroundAlert) {
+      const alertMsg = `[EMERGENCY WARNING] Marcus Thorne has triggered a ${serviceName} dispatch alert! Location: ${location.address} (${location.coords.lat}, ${location.coords.lng})`;
+      triggerBackgroundAlert(alertMsg);
     }
 
     setTimeout(() => {
