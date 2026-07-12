@@ -105,61 +105,91 @@ export default function App() {
     }
   }, []);
 
-  // Default contacts
-  const [contacts, setContacts] = useState([
-    {
-      id: '1',
-      name: 'Sarah Jenkins',
-      relationship: 'Mother',
-      phone: '+91 98200 12345',
-      isPrimary: true,
-      avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBua-1Oe35cRdz-tDvGne_YdSC6BhohrEaeb6LiVA0s-Y3sgSEp8dTcWrgTdnmxJfv5EiY0PcT5uQ4ng8Hcz_i9Be5bBlmfqz4MCTOrxPiRh7cQ940NoJ1wEXAz86wNshrmgo6_W198KJ52exa93tQqxvtZ4HWoVwLVhpIcKBEXC51yPlATZ4HQevzyFbGU4Js57J8B2h2OzrJ9sgKT3-u_dT2VTkvjG0hF8cOlicHXl1HvV0GDlnhKxLOreovmcR3LwQi2UrRrNlc'
-    },
-    {
-      id: '2',
-      name: 'David Miller',
-      relationship: 'Partner',
-      phone: '+91 98199 87654',
-      isPrimary: false,
-      avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDazQU2sGBMCh8qVd0MgrJaZC5NQm3-EXeizrOVd1IOzQ7vnbpBGn9_kr2MZE_fr-2lFmwsptzrl0-I_JJCymfPj3zGDBpzJ0rh0BkwBKz-ON9D3GY6kD3k0SgxuLkuZHFA1WFgAeFR-jPmEZ5qzU4-Rhot8ORZnYtyyTbq4UJe8bYU2wZiTlB0_PQOQ3pLmMqp3CdiZx9sfwAZj-v1vl1HTbpVpt87Er1S04xIlCT0hEeXB_oqaaxDqTDt9fdU8OvRdyHcl3d64yQ'
-    },
-    {
-      id: '3',
-      name: 'Robert Chen',
-      relationship: 'Brother',
-      phone: '+91 98211 22334',
-      isPrimary: false,
-      avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBvNuGp1EoBUzOov-xKUoLhDGkHyGDvKyibITVfxPnjsbg9Nvq9LcJlB-RBQyj8Xyhv2IUjTEui5-JrhdpZiayIJEIFZCZc9NCUcMfjBAcwSXWfVqAYHmj1TvRfA5AxU6U3COoLirYLPJzbLNzwOSfesOW9-yKux4IWFYsuqiBT1nySGFBm95fnD3DrUDpegy3jLDQMj5qDxy37VqYAFotaYF_ov36kosNNak15tN3Byx7qHkIzTDz0K4U4kRXtn777rKUiZmPWOkY'
+  // Default contacts (initialized from localStorage or default template)
+  const [contacts, setContacts] = useState(() => {
+    const saved = localStorage.getItem('protekt_contacts');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.warn("Failed to parse contacts from localStorage:", e);
+      }
     }
-  ]);
-
-  // Default Medical ID profile
-  const [profile, setProfile] = useState({
-    name: 'Marcus Thorne',
-    dob: '12/05/1982',
-    age: 41,
-    bloodType: 'O+',
-    height: '182cm',
-    weight: '84kg',
-    showOnLockScreen: true,
-    donor: true,
-    spouseCall: '+91 98199 87654',
-    doctorCall: '+91 98199 54321',
-    avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAMv2hgwgUkHK_e7mVwtfeoxbtGYIgwDBA45laYpkQkjW-PkLlkobQzbYnpjTBe9ode1jiQ2LSjLYC9g2UznIcoWTMZ3qAfjSXuGaCk8D4qgyX0NcjN7kVWRaiOW-DM6FWASQiozTf26cPsWQ98C8ct060qJMRKa0tr3716BqmLJYR-BakydM4H8mockIJgDJ5P532fqCak8ytPz9WTb2W2-d-ZTuwrPFZElqS15lQ3tuukxpTYSn8-QwW15WYcXyQ1kz2kNL6iFH8',
-    allergies: [
-      { name: 'Penicillin', severity: 'Severe' },
-      { name: 'Latex', severity: 'Moderate' }
-    ],
-    medications: [
-      { name: 'Lisinopril', info: '10mg Oral Tablet • Once Daily' },
-      { name: 'Ventolin HFA', info: '90mcg Inhaler • As needed for SOB' }
-    ],
-    conditions: [
-      'Hypertension (diagnosed 2019)',
-      'Exercise-induced asthma',
-      'Type 2 Diabetes (controlled)'
-    ]
+    return [
+      {
+        id: '1',
+        name: 'Sarah Jenkins',
+        relationship: 'Mother',
+        phone: '+91 98200 12345',
+        isPrimary: true,
+        avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBua-1Oe35cRdz-tDvGne_YdSC6BhohrEaeb6LiVA0s-Y3sgSEp8dTcWrgTdnmxJfv5EiY0PcT5uQ4ng8Hcz_i9Be5bBlmfqz4MCTOrxPiRh7cQ940NoJ1wEXAz86wNshrmgo6_W198KJ52exa93tQqxvtZ4HWoVwLVhpIcKBEXC51yPlATZ4HQevzyFbGU4Js57J8B2h2OzrJ9sgKT3-u_dT2VTkvjG0hF8cOlicHXl1HvV0GDlnhKxLOreovmcR3LwQi2UrRrNlc'
+      },
+      {
+        id: '2',
+        name: 'David Miller',
+        relationship: 'Partner',
+        phone: '+91 98199 87654',
+        isPrimary: false,
+        avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDazQU2sGBMCh8qVd0MgrJaZC5NQm3-EXeizrOVd1IOzQ7vnbpBGn9_kr2MZE_fr-2lFmwsptzrl0-I_JJCymfPj3zGDBpzJ0rh0BkwBKz-ON9D3GY6kD3k0SgxuLkuZHFA1WFgAeFR-jPmEZ5qzU4-Rhot8ORZnYtyyTbq4UJe8bYU2wZiTlB0_PQOQ3pLmMqp3CdiZx9sfwAZj-v1vl1HTbpVpt87Er1S04xIlCT0hEeXB_oqaaxDqTDt9fdU8OvRdyHcl3d64yQ'
+      },
+      {
+        id: '3',
+        name: 'Robert Chen',
+        relationship: 'Brother',
+        phone: '+91 98211 22334',
+        isPrimary: false,
+        avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuVvNuGp1EoBUzOov-xKUoLhDGkHyGDvKyibITVfxPnjsbg9Nvq9LcJlB-RBQyj8Xyhv2IUjTEui5-JrhdpZiayIJEIFZCZc9NCUcMfjBAcwSXWfVqAYHmj1TvRfA5AxU6U3COoLirYLPJzbLNzwOSfesOW9-yKux4IWFYsuqiBT1nySGFBm95fnD3DrUDpegy3jLDQMj5qDxy37VqYAFotaYF_ov36kosNNak15tN3Byx7qHkIzTDz0K4U4kRXtn777rKUiZmPWOkY'
+      }
+    ];
   });
+
+  // Default Medical ID profile (initialized from localStorage or default template)
+  const [profile, setProfile] = useState(() => {
+    const saved = localStorage.getItem('protekt_profile');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.warn("Failed to parse profile from localStorage:", e);
+      }
+    }
+    return {
+      name: 'Marcus Thorne',
+      dob: '12/05/1982',
+      age: 41,
+      bloodType: 'O+',
+      height: '182cm',
+      weight: '84kg',
+      showOnLockScreen: true,
+      donor: true,
+      spouseCall: '+91 98199 87654',
+      doctorCall: '+91 98199 54321',
+      avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAMv2hgwgUkHK_e7mVwtfeoxbtGYIgwDBA45laYpkQkjW-PkLlkobQzbYnpjTBe9ode1jiQ2LSjLYC9g2UznIcoWTMZ3qAfjSXuGaCk8D4qgyX0NcjN7kVWRaiOW-DM6FWASQiozTf26cPsWQ98C8ct060qJMRKa0tr3716BqmLJYR-BakydM4H8mockIJgDJ5P532fqCak8ytPz9WTb2W2-d-ZTuwrPFZElqS15lQ3tuukxpTYSn8-QwW15WYcXyQ1kz2kNL6iFH8',
+      allergies: [
+        { name: 'Penicillin', severity: 'Severe' },
+        { name: 'Latex', severity: 'Moderate' }
+      ],
+      medications: [
+        { name: 'Lisinopril', info: '10mg Oral Tablet • Once Daily' },
+        { name: 'Ventolin HFA', info: '90mcg Inhaler • As needed for SOB' }
+      ],
+      conditions: [
+        'Hypertension (diagnosed 2019)',
+        'Exercise-induced asthma',
+        'Type 2 Diabetes (controlled)'
+      ]
+    };
+  });
+
+  // Sync contacts state changes to localStorage
+  useEffect(() => {
+    localStorage.setItem('protekt_contacts', JSON.stringify(contacts));
+  }, [contacts]);
+
+  // Sync profile state changes to localStorage
+  useEffect(() => {
+    localStorage.setItem('protekt_profile', JSON.stringify(profile));
+  }, [profile]);
 
   // Sync dark mode class on html tag
   useEffect(() => {
