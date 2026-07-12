@@ -32,9 +32,6 @@ export default function SOSDashboard({ sosTriggered, setSosTriggered, activeServ
           if (navigator.vibrate) {
             navigator.vibrate([200, 100, 200, 100, 500]); // Emergency vibration pattern
           }
-          if (triggerBackgroundAlert) {
-            triggerBackgroundAlert();
-          }
           setTimeout(() => {
             window.location.href = 'tel:112'; // India's Single Emergency Response number
           }, 500);
@@ -80,10 +77,7 @@ export default function SOSDashboard({ sosTriggered, setSosTriggered, activeServ
       phoneNumber = '101';
     }
 
-    if (triggerBackgroundAlert) {
-      const alertMsg = `[EMERGENCY WARNING] ${profile?.name || 'User'} has triggered a ${serviceName} dispatch alert! Location: ${location.address} (${location.coords.lat}, ${location.coords.lng})`;
-      triggerBackgroundAlert(alertMsg);
-    }
+
 
     setTimeout(() => {
       window.location.href = `tel:${phoneNumber}`;

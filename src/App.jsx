@@ -228,6 +228,16 @@ export default function App() {
     }
   };
 
+  // Centralized SOS trigger listener to broadcast background SMS alerts instantly
+  useEffect(() => {
+    if (sosTriggered) {
+      const msg = activeService 
+        ? `[EMERGENCY WARNING] ${profile.name || 'User'} has triggered a ${activeService} dispatch alert! Location: ${location.address} (${location.coords.lat}, ${location.coords.lng})`
+        : `[EMERGENCY WARNING] ${profile.name || 'User'} has triggered an SOS alert! Location: ${location.address} (${location.coords.lat}, ${location.coords.lng})`;
+      triggerBackgroundAlert(msg);
+    }
+  }, [sosTriggered, activeService]);
+
   // Header background states
   const headerBgClass = sosTriggered 
     ? 'bg-error dark:bg-error text-white' 
