@@ -111,15 +111,16 @@ export default function SOSDashboard({ sosTriggered, setSosTriggered, activeServ
           <p className="font-headline-md text-headline-md leading-tight text-on-surface">{address}</p>
           <p className="text-on-surface-variant font-body-md opacity-70 mt-1">{coords.lat}, {coords.lng}</p>
         </div>
-        {/* Live Interactive Map */}
+        {/* Live Interactive Map with bottom attribution cropped for clean app UI */}
         <div className="mt-md h-40 rounded-lg overflow-hidden relative border border-outline-variant bg-surface-container">
           <iframe 
             title="Live GPS Location Map"
-            width="100%" 
-            height="100%" 
             src={mapUrl}
-            className="w-full h-full border-none"
-            style={{ filter: 'grayscale(0.1)' }}
+            className="absolute top-0 left-0 w-full border-none"
+            style={{ 
+              filter: 'grayscale(0.1)',
+              height: 'calc(100% + 32px)' // Push bottom attribution down out of bounds
+            }}
           ></iframe>
         </div>
       </section>
