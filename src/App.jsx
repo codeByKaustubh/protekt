@@ -203,40 +203,7 @@ export default function App() {
     }
   }, [darkMode]);
 
-  const triggerBackgroundAlert = async (customMessage) => {
-    const alertMessage = customMessage || `[EMERGENCY WARNING] ${profile.name || 'User'} has triggered an SOS alert! Location: ${location.address} (${location.coords.lat}, ${location.coords.lng})`;
 
-    console.log("Triggering background alerts to all contacts...", contacts);
-
-    for (const contact of contacts) {
-      try {
-        const response = await fetch('/api/send-sos', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            to: contact.phone,
-            message: alertMessage,
-          }),
-        });
-        const data = await response.json();
-        console.log(`Background alert status for ${contact.name}:`, data);
-      } catch (err) {
-        console.warn(`Failed to send background alert to ${contact.name}:`, err);
-      }
-    }
-  };
-
-  // Centralized SOS trigger listener to broadcast background SMS alerts instantly
-  useEffect(() => {
-    if (sosTriggered) {
-      const msg = activeService 
-        ? `[EMERGENCY WARNING] ${profile.name || 'User'} has triggered a ${activeService} dispatch alert! Location: ${location.address} (${location.coords.lat}, ${location.coords.lng})`
-        : `[EMERGENCY WARNING] ${profile.name || 'User'} has triggered an SOS alert! Location: ${location.address} (${location.coords.lat}, ${location.coords.lng})`;
-      triggerBackgroundAlert(msg);
-    }
-  }, [sosTriggered, activeService]);
 
   // Header background states
   const headerBgClass = sosTriggered 
@@ -311,7 +278,6 @@ export default function App() {
             setActiveService={setActiveService}
             location={location}
             profile={profile}
-            triggerBackgroundAlert={triggerBackgroundAlert}
           />
         )}
         {activeTab === 'contacts' && (

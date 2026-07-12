@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-export default function SOSDashboard({ sosTriggered, setSosTriggered, activeService, setActiveService, location, profile, triggerBackgroundAlert }) {
+export default function SOSDashboard({ sosTriggered, setSosTriggered, activeService, setActiveService, location, profile }) {
   const { coords, address, accuracy } = location;
   const [holdProgress, setHoldProgress] = useState(289); // SVG strokeDashoffset: starts at 289 (empty) -> 0 (full)
   const [isHolding, setIsHolding] = useState(false);
