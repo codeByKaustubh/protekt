@@ -409,47 +409,6 @@ export default function MedicalIDView({ profile, setProfile }) {
         </div>
       </div>
 
-      {/* Primary Contacts quick dials */}
-      <section className="mt-xl">
-        <h2 className="font-headline-md text-on-surface mb-md">Emergency Quick Dial</h2>
-        <div className="space-y-sm">
-          <div className="bg-white p-md rounded-xl border border-outline-variant flex items-center justify-between shadow-sm">
-            <div className="flex items-center gap-md">
-              <div className="w-12 h-12 bg-secondary-fixed rounded-full flex items-center justify-center text-on-secondary-fixed">
-                <span className="material-symbols-outlined">person</span>
-              </div>
-              <div>
-                <p className="font-label-bold text-on-surface">Sarah Thorne</p>
-                <p className="text-xs text-secondary">Spouse • {profile.spouseCall}</p>
-              </div>
-            </div>
-            <a 
-              href={`tel:${profile.spouseCall}`}
-              className="w-10 h-10 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center hover:bg-secondary-container/90"
-            >
-              <span className="material-symbols-outlined">call</span>
-            </a>
-          </div>
-          <div className="bg-white p-md rounded-xl border border-outline-variant flex items-center justify-between shadow-sm">
-            <div className="flex items-center gap-md">
-              <div className="w-12 h-12 bg-secondary-fixed rounded-full flex items-center justify-center text-on-secondary-fixed">
-                <span className="material-symbols-outlined">person</span>
-              </div>
-              <div>
-                <p className="font-label-bold text-on-surface">Dr. Elena Rodriguez</p>
-                <p className="text-xs text-secondary">Primary Physician • {profile.doctorCall}</p>
-              </div>
-            </div>
-            <a 
-              href={`tel:${profile.doctorCall}`}
-              className="w-10 h-10 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center hover:bg-secondary-container/90"
-            >
-              <span className="material-symbols-outlined">call</span>
-            </a>
-          </div>
-        </div>
-      </section>
-
       {/* Footer Note */}
       <p className="mt-xl text-center text-xs text-on-surface-variant italic px-md">
         This information is stored locally on your device and is accessible to first responders from your lock screen when 'Show on Lock Screen' is enabled.
