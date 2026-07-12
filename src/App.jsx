@@ -164,10 +164,6 @@ export default function App() {
       donor: true,
       spouseCall: '+91 98199 87654',
       doctorCall: '+91 98199 54321',
-      quickDials: [
-        { name: 'Sarah Thorne', relation: 'Spouse', phone: '+91 98199 87654' },
-        { name: 'Dr. Elena Rodriguez', relation: 'Primary Physician', phone: '+91 98199 54321' }
-      ],
       avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAMv2hgwgUkHK_e7mVwtfeoxbtGYIgwDBA45laYpkQkjW-PkLlkobQzbYnpjTBe9ode1jiQ2LSjLYC9g2UznIcoWTMZ3qAfjSXuGaCk8D4qgyX0NcjN7kVWRaiOW-DM6FWASQiozTf26cPsWQ98C8ct060qJMRKa0tr3716BqmLJYR-BakydM4H8mockIJgDJ5P532fqCak8ytPz9WTb2W2-d-ZTuwrPFZElqS15lQ3tuukxpTYSn8-QwW15WYcXyQ1kz2kNL6iFH8',
       allergies: [
         { name: 'Penicillin', severity: 'Severe' },
