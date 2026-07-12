@@ -204,12 +204,11 @@ export default function App() {
   }, [darkMode]);
 
   const triggerBackgroundAlert = async (customMessage) => {
-    const primaryContacts = contacts.filter(c => c.isPrimary);
     const alertMessage = customMessage || `[EMERGENCY WARNING] ${profile.name || 'User'} has triggered an SOS alert! Location: ${location.address} (${location.coords.lat}, ${location.coords.lng})`;
 
-    console.log("Triggering background alerts to contacts...", primaryContacts);
+    console.log("Triggering background alerts to all contacts...", contacts);
 
-    for (const contact of primaryContacts) {
+    for (const contact of contacts) {
       try {
         const response = await fetch('/api/send-sos', {
           method: 'POST',
