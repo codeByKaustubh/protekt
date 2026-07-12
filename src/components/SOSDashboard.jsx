@@ -4,8 +4,45 @@ export default function SOSDashboard({ sosTriggered, setSosTriggered, activeServ
   const { coords, address, accuracy } = location;
   const [holdProgress, setHoldProgress] = useState(289); // SVG strokeDashoffset: starts at 289 (empty) -> 0 (full)
   const [isHolding, setIsHolding] = useState(false);
-  const holdTimerRef = useRef(null);
   const holdStartRef = useRef(null);
+
+  // Dynamic quick dials state
+  const [quickDials, setQuickDials] = useState(() => {
+    const saved = localStorage.getItem('protekt_quick_dials');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.warn("Failed to parse quick dials:", e);
+      }
+    }
+    return [
+      { id: '1', name: 'Police', phone: '100', icon: 'local_police' },
+      { id: '2', name: 'Ambulance', phone: '108', icon: 'medical_services' },
+      { id: '3', name: 'Fire', phone: '101', icon: 'fire_truck' }
+    ];
+  });
+
+  // Modal configuration states
+  const [isEditingDials, setIsEditingDials] = useState(false);
+  const [showDialModal, setShowDialModal] = useState(false);
+  const [editingDial, setEditingDial] = useState(null); // dial being edited, or null for new
+  const [dialForm, setDialForm] = useState({ name: '', phone: '', icon: 'shield' });
+
+  const AVAILABLE_ICONS = [
+    { name: 'Police / Security', value: 'local_police' },
+    { name: 'Medical / Health', value: 'medical_services' },
+    { name: 'Fire Services', value: 'fire_truck' },
+    { name: 'General Safety', value: 'shield' },
+    { name: 'Home / Family', value: 'home' },
+    { name: 'Work / Office', value: 'work' },
+    { name: 'Contact Group', value: 'group' }
+  ];
+
+  // Sync quick dials to localStorage
+  useEffect(() => {
+    localStorage.setItem('protekt_quick_dials', JSON.stringify(quickDials));
+  }, [quickDials]);
 
   // Hold-to-trigger logic using requestAnimationFrame for smooth animation
   useEffect(() => {
@@ -18,7 +55,6 @@ export default function SOSDashboard({ sosTriggered, setSosTriggered, activeServ
       const tick = () => {
         const elapsed = performance.now() - holdStartRef.current;
         const progressPercent = Math.min(elapsed / holdDuration, 1);
-        // Map 0-1 to 289-0 offset
         const newOffset = 289 - progressPercent * 289;
         setHoldProgress(newOffset);
 
@@ -60,25 +96,14 @@ export default function SOSDashboard({ sosTriggered, setSosTriggered, activeServ
     setIsHolding(false);
   };
 
-  const triggerServiceSOS = (serviceName) => {
+  const triggerServiceSOS = (serviceName, phoneNumber) => {
     setActiveService(serviceName);
     setSosTriggered(true);
     if (navigator.vibrate) {
       navigator.vibrate(200);
     }
-    
-    // Emergency numbers for India (Mumbai/Palghar/Maharashtra region)
-    let phoneNumber = '112'; 
-    if (serviceName === 'Police') {
-      phoneNumber = '100';
-    } else if (serviceName === 'Ambulance') {
-      phoneNumber = '108'; // Maharashtra State Free Ambulance Service
-    } else if (serviceName === 'Fire') {
-      phoneNumber = '101';
-    }
-
     setTimeout(() => {
-      window.location.href = `tel:${phoneNumber}`;
+      window.location.href = `tel:${phoneNumber.replace(/[^\d+]/g, '')}`;
     }, 500);
   };
 
@@ -88,6 +113,58 @@ export default function SOSDashboard({ sosTriggered, setSosTriggered, activeServ
     setHoldProgress(289);
   };
 
+  const handleOpenAddDial = () => {
+    setEditingDial(null);
+    setDialForm({ name: '', phone: '', icon: 'shield' });
+    setShowDialModal(true);
+  };
+
+  const handleOpenEditDial = (dial) => {
+    setEditingDial(dial);
+    setDialForm({
+      name: dial.name,
+      phone: dial.phone,
+      icon: dial.icon
+    });
+    setShowDialModal(true);
+  };
+
+  const handleCloseDialModal = () => {
+    setShowDialModal(false);
+    setEditingDial(null);
+    setDialForm({ name: '', phone: '', icon: 'shield' });
+  };
+
+  const handleSaveDial = (e) => {
+    e.preventDefault();
+    if (!dialForm.name || !dialForm.phone) return;
+
+    if (editingDial) {
+      // Update existing dial
+      setQuickDials(quickDials.map(d => 
+        d.id === editingDial.id 
+          ? { ...d, name: dialForm.name, phone: dialForm.phone, icon: dialForm.icon }
+          : d
+      ));
+    } else {
+      // Create new dial
+      const newDial = {
+        id: Date.now().toString(),
+        name: dialForm.name,
+        phone: dialForm.phone,
+        icon: dialForm.icon
+      };
+      setQuickDials([...quickDials, newDial]);
+    }
+
+    handleCloseDialModal();
+  };
+
+  const handleDeleteDial = (id) => {
+    setQuickDials(quickDials.filter(d => d.id !== id));
+  };
+
+  // Map calculations
   const lat = location.rawCoords?.latitude || 51.5238;
   const lon = location.rawCoords?.longitude || -0.1585;
   const delta = 0.003;
@@ -128,10 +205,8 @@ export default function SOSDashboard({ sosTriggered, setSosTriggered, activeServ
       {/* SOS Trigger Center */}
       <section className="flex flex-col items-center justify-center py-xl relative">
         <div className="relative flex items-center justify-center w-64 h-64">
-          {/* Ring Animation (Pulsing when SOS is triggered or holding) */}
           <div className={`absolute inset-0 rounded-full bg-primary/10 ${isHolding || sosTriggered ? 'sos-pulse' : ''}`}></div>
           
-          {/* Progress Circle SVG */}
           <svg className="absolute inset-0 transform -rotate-90 w-full h-full" viewBox="0 0 100 100">
             <circle className="text-outline-variant" cx="50" cy="50" fill="transparent" r="46" stroke="currentColor" strokeWidth="4"></circle>
             <circle 
@@ -148,7 +223,6 @@ export default function SOSDashboard({ sosTriggered, setSosTriggered, activeServ
             ></circle>
           </svg>
 
-          {/* SOS Button */}
           {!sosTriggered ? (
             <button 
               className={`relative z-10 w-52 h-52 bg-primary hover:bg-primary-container active:scale-95 transition-all duration-300 rounded-full flex flex-col items-center justify-center text-white select-none ${
@@ -194,44 +268,77 @@ export default function SOSDashboard({ sosTriggered, setSosTriggered, activeServ
         )}
       </section>
 
-      {/* Quick Links Grid */}
-      <section className="grid grid-cols-3 gap-md">
+      {/* Quick Links Section Header */}
+      <section className="flex items-center justify-between mt-sm border-t border-outline-variant/30 pt-md">
+        <div className="font-label-bold text-label-md text-on-surface-variant flex items-center gap-xs">
+          <span className="material-symbols-outlined text-primary">contact_phone</span>
+          EMERGENCY QUICK DIAL
+        </div>
         <button 
-          onClick={() => triggerServiceSOS('Police')}
-          className={`bg-surface-container-lowest border border-outline-variant p-md rounded-xl flex flex-col items-center gap-sm active:scale-95 transition-all duration-200 hover:bg-surface-container hover:shadow-sm ${
-            sosTriggered && activeService === 'Police' ? 'ring-2 ring-primary border-transparent' : ''
+          onClick={() => setIsEditingDials(!isEditingDials)}
+          className={`text-sm font-label-bold flex items-center gap-xs px-sm py-1 rounded-lg active:scale-95 transition-all ${
+            isEditingDials 
+              ? 'bg-primary text-on-primary shadow-sm' 
+              : 'text-primary hover:bg-black/5 dark:hover:bg-white/5'
           }`}
         >
-          <div className="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
-            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>local_police</span>
-          </div>
-          <span className="font-label-bold text-label-md text-on-surface">Police</span>
-        </button>
-        <button 
-          onClick={() => triggerServiceSOS('Ambulance')}
-          className={`bg-surface-container-lowest border border-outline-variant p-md rounded-xl flex flex-col items-center gap-sm active:scale-95 transition-all duration-200 hover:bg-surface-container hover:shadow-sm ${
-            sosTriggered && activeService === 'Ambulance' ? 'ring-2 ring-primary border-transparent' : ''
-          }`}
-        >
-          <div className="w-12 h-12 rounded-full bg-error-container flex items-center justify-center text-on-error-container">
-            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>medical_services</span>
-          </div>
-          <span className="font-label-bold text-label-md text-on-surface">Ambulance</span>
-        </button>
-        <button 
-          onClick={() => triggerServiceSOS('Fire')}
-          className={`bg-surface-container-lowest border border-outline-variant p-md rounded-xl flex flex-col items-center gap-sm active:scale-95 transition-all duration-200 hover:bg-surface-container hover:shadow-sm ${
-            sosTriggered && activeService === 'Fire' ? 'ring-2 ring-primary border-transparent' : ''
-          }`}
-        >
-          <div className="w-12 h-12 rounded-full bg-tertiary-container/20 flex items-center justify-center text-tertiary">
-            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>fire_truck</span>
-          </div>
-          <span className="font-label-bold text-label-md text-on-surface">Fire</span>
+          <span className="material-symbols-outlined text-[18px]">settings</span>
+          <span>{isEditingDials ? 'Done' : 'Configure'}</span>
         </button>
       </section>
 
-      {/* Safety Checklist / Tips (Asymmetric/Modern Layout) */}
+      {/* Quick Links Grid */}
+      <section className="grid grid-cols-3 gap-md">
+        {quickDials.map((dial) => (
+          <div key={dial.id} className="relative">
+            <button 
+              onClick={() => {
+                if (isEditingDials) {
+                  handleOpenEditDial(dial);
+                } else {
+                  triggerServiceSOS(dial.name, dial.phone);
+                }
+              }}
+              className={`w-full bg-surface-container-lowest border border-outline-variant p-md rounded-xl flex flex-col items-center gap-sm active:scale-95 transition-all duration-200 hover:bg-surface-container hover:shadow-sm h-28 justify-center ${
+                sosTriggered && activeService === dial.name ? 'ring-2 ring-primary border-transparent' : ''
+              } ${isEditingDials ? 'border-dashed border-primary/50' : ''}`}
+            >
+              <div className="w-11 h-11 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>{dial.icon}</span>
+              </div>
+              <span className="font-label-bold text-label-md text-on-surface truncate w-full text-center">{dial.name}</span>
+            </button>
+            
+            {/* Delete button (Edit mode only) */}
+            {isEditingDials && (
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteDial(dial.id);
+                }}
+                className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-error text-white flex items-center justify-center shadow-md active:scale-90 transition-transform z-10 hover:bg-error/90"
+              >
+                <span className="material-symbols-outlined text-[14px] font-bold">close</span>
+              </button>
+            )}
+          </div>
+        ))}
+        
+        {/* Add Dial Card (Edit mode only) */}
+        {isEditingDials && (
+          <button 
+            onClick={handleOpenAddDial}
+            className="bg-surface-container/30 border-2 border-dashed border-outline-variant rounded-xl p-md flex flex-col items-center justify-center gap-xs active:scale-95 transition-all hover:bg-surface-container h-28"
+          >
+            <div className="w-10 h-10 rounded-full border border-dashed border-outline flex items-center justify-center text-on-surface-variant">
+              <span className="material-symbols-outlined">add</span>
+            </div>
+            <span className="font-label-bold text-xs text-on-surface-variant">Add Dial</span>
+          </button>
+        )}
+      </section>
+
+      {/* Safety Checklist / Tips */}
       <section className="bg-inverse-surface text-inverse-on-surface p-lg rounded-xl flex items-center gap-lg shadow-sm hover:shadow-md transition-shadow">
         <div className="flex-1">
           <h3 className="font-headline-md text-headline-md mb-xs text-white">Stay Calm</h3>
@@ -243,6 +350,81 @@ export default function SOSDashboard({ sosTriggered, setSosTriggered, activeServ
           <span className="material-symbols-outlined text-4xl text-white">info</span>
         </div>
       </section>
+
+      {/* QUICK DIAL CONFIG MODAL */}
+      {showDialModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-surface border border-outline-variant rounded-2xl w-full max-w-md p-lg shadow-xl animate-in fade-in zoom-in-95 duration-200 text-on-surface">
+            <div className="flex justify-between items-center mb-md border-b border-outline-variant pb-sm">
+              <h2 className="font-headline-md text-headline-md">
+                {editingDial ? 'Edit Quick Dial' : 'Add Quick Dial'}
+              </h2>
+              <button onClick={handleCloseDialModal} className="text-on-surface-variant hover:text-on-surface">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <form onSubmit={handleSaveDial} className="space-y-md">
+              <div>
+                <label className="block text-sm font-label-bold mb-1">Service Label / Name</label>
+                <input 
+                  type="text" 
+                  value={dialForm.name}
+                  onChange={(e) => setDialForm({...dialForm, name: e.target.value})}
+                  className="w-full h-11 px-md border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none bg-white text-on-surface"
+                  placeholder="e.g. Security, Hospital, Police"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-label-bold mb-1">Phone Number</label>
+                <input 
+                  type="tel" 
+                  value={dialForm.phone}
+                  onChange={(e) => setDialForm({...dialForm, phone: e.target.value})}
+                  className="w-full h-11 px-md border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none bg-white text-on-surface"
+                  placeholder="e.g. 100, 108, 98200XXXXX"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-label-bold mb-2">Select Icon</label>
+                <div className="grid grid-cols-4 gap-sm">
+                  {AVAILABLE_ICONS.map((iconOption) => (
+                    <button
+                      key={iconOption.value}
+                      type="button"
+                      onClick={() => setDialForm({...dialForm, icon: iconOption.value})}
+                      className={`p-sm border rounded-xl flex flex-col items-center gap-xs transition-all active:scale-95 ${
+                        dialForm.icon === iconOption.value
+                          ? 'border-primary bg-primary/10 text-primary'
+                          : 'border-outline-variant hover:bg-surface-container'
+                      }`}
+                      title={iconOption.name}
+                    >
+                      <span className="material-symbols-outlined text-2xl">{iconOption.value}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="flex gap-sm justify-end pt-sm border-t border-outline-variant">
+                <button 
+                  type="button" 
+                  onClick={handleCloseDialModal}
+                  className="px-md py-sm bg-surface-container-high text-on-surface rounded-lg hover:bg-surface-variant"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  className="px-md py-sm bg-primary text-on-primary rounded-lg hover:bg-primary-container font-label-bold"
+                >
+                  Save Dial
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
