@@ -10,6 +10,54 @@ export default function App() {
   const [activeService, setActiveService] = useState(null); // specific service triggered
   const [darkMode, setDarkMode] = useState(false);
 
+  // PWA installation states
+  const [installPromptEvent, setInstallPromptEvent] = useState(null);
+  const [showInstallModal, setShowInstallModal] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(false);
+  const [detectedOS, setDetectedOS] = useState('Android');
+
+  useEffect(() => {
+    // Detect OS
+    const ua = window.navigator.userAgent.toLowerCase();
+    if (/iphone|ipad|ipod/.test(ua)) {
+      setDetectedOS('iOS');
+    } else if (/mac/.test(ua)) {
+      setDetectedOS('Mac');
+    } else if (/win/.test(ua)) {
+      setDetectedOS('Windows');
+    } else {
+      setDetectedOS('Android');
+    }
+
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      setInstallPromptEvent(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
+      setIsStandalone(true);
+    }
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallApp = async () => {
+    if (installPromptEvent) {
+      installPromptEvent.prompt();
+      const choiceResult = await installPromptEvent.userChoice;
+      if (choiceResult.outcome === 'accepted') {
+        setIsStandalone(true);
+        setInstallPromptEvent(null);
+      }
+    } else {
+      setShowInstallModal(true);
+    }
+  };
+
   // Geolocation state
   const [location, setLocation] = useState({
     coords: { lat: '51.5238° N', lng: '0.1585° W' },
@@ -149,6 +197,19 @@ export default function App() {
           </h1>
         </div>
         <div className="flex items-center gap-sm">
+          {/* PWA Download Button */}
+          {!isStandalone && (
+            <button 
+              onClick={handleInstallApp}
+              className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-transform"
+              title="Download App"
+              aria-label="Download App"
+            >
+              <span className="material-symbols-outlined font-bold">
+                download
+              </span>
+            </button>
+          )}
           {/* Dark Mode toggle */}
           <button 
             onClick={() => setDarkMode(!darkMode)}
@@ -260,6 +321,120 @@ export default function App() {
           <span className="font-label-bold text-label-md">Guides</span>
         </button>
       </nav>
+
+      {/* PWA INSTALLATION GUIDE MODAL */}
+      {showInstallModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-surface dark:bg-inverse-surface border border-outline-variant dark:border-outline rounded-2xl w-full max-w-md p-lg shadow-xl animate-in fade-in zoom-in-95 duration-200 text-on-surface dark:text-inverse-on-surface">
+            <div className="flex justify-between items-center mb-md border-b border-outline-variant pb-sm">
+              <h2 className="font-headline-md text-headline-md flex items-center gap-xs">
+                <span className="material-symbols-outlined text-primary">download</span>
+                Install PROTEKT App
+              </h2>
+              <button 
+                onClick={() => setShowInstallModal(false)} 
+                className="text-on-surface-variant hover:text-on-surface dark:text-neutral-400 dark:hover:text-white"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            
+            <div className="space-y-md">
+              <p className="font-body-md text-sm opacity-90">
+                You can install **PROTEKT** directly on your device to have a home screen icon, run in fullscreen standalone mode, and access it offline.
+              </p>
+              
+              {/* Tabs for OS */}
+              <div className="flex bg-surface-container dark:bg-on-surface/10 rounded-lg p-xs text-xs font-bold gap-xs">
+                {['Android', 'iOS', 'Windows', 'Mac'].map((os) => (
+                  <button 
+                    key={os}
+                    onClick={() => setDetectedOS(os)}
+                    className={`flex-1 py-1.5 rounded text-center transition-all ${
+                      detectedOS === os 
+                        ? 'bg-white dark:bg-on-surface text-primary shadow-sm' 
+                        : 'text-secondary dark:text-neutral-300 hover:bg-black/5 dark:hover:bg-white/5'
+                    }`}
+                  >
+                    {os}
+                  </button>
+                ))}
+              </div>
+
+              {/* Steps based on selected OS */}
+              <div className="bg-surface-container-lowest dark:bg-on-surface/5 p-md rounded-xl border border-outline-variant dark:border-outline/50">
+                {detectedOS === 'iOS' && (
+                  <div className="space-y-sm text-sm">
+                    <div className="flex gap-md items-start">
+                      <span className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">1</span>
+                      <p>Open this page in **Safari** browser on your iPhone/iPad.</p>
+                    </div>
+                    <div className="flex gap-md items-start">
+                      <span className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">2</span>
+                      <p className="flex items-center gap-xs flex-wrap">
+                        Tap the **Share** button 
+                        <span className="material-symbols-outlined text-[18px] bg-neutral-200 dark:bg-neutral-800 p-1 rounded">ios_share</span> 
+                        in Safari's toolbar.
+                      </p>
+                    </div>
+                    <div className="flex gap-md items-start">
+                      <span className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">3</span>
+                      <p>Scroll down the share sheet and tap **"Add to Home Screen"**.</p>
+                    </div>
+                  </div>
+                )}
+
+                {detectedOS === 'Android' && (
+                  <div className="space-y-sm text-sm">
+                    <div className="flex gap-md items-start">
+                      <span className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">1</span>
+                      <p>Tap the browser menu button (three vertical dots **⋮**) in the top right.</p>
+                    </div>
+                    <div className="flex gap-md items-start">
+                      <span className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">2</span>
+                      <p>Select **"Install app"** or **"Add to Home screen"** from the list.</p>
+                    </div>
+                    <div className="flex gap-md items-start">
+                      <span className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">3</span>
+                      <p>Confirm the prompt. The app icon will appear on your device's home screen.</p>
+                    </div>
+                  </div>
+                )}
+
+                {(detectedOS === 'Windows' || detectedOS === 'Mac') && (
+                  <div className="space-y-sm text-sm">
+                    <div className="flex gap-md items-start">
+                      <span className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">1</span>
+                      <p>Look at the right side of the browser's address bar (URL bar) at the top.</p>
+                    </div>
+                    <div className="flex gap-md items-start">
+                      <span className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">2</span>
+                      <p className="flex items-center gap-xs flex-wrap">
+                        Click the **Install** icon 
+                        <span className="material-symbols-outlined text-[18px] bg-neutral-200 dark:bg-neutral-800 p-1 rounded">install_desktop</span>
+                        or the **"+"** icon.
+                      </p>
+                    </div>
+                    <div className="flex gap-md items-start">
+                      <span className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">3</span>
+                      <p>Click **"Install"** in the popup to place a desktop shortcut.</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex justify-end mt-lg pt-sm border-t border-outline-variant">
+              <button 
+                onClick={() => setShowInstallModal(false)}
+                className="px-md py-sm bg-primary text-on-primary font-bold rounded-lg hover:bg-primary-container active:scale-95 transition-transform"
+              >
+                Got It
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
