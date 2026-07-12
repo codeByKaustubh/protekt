@@ -205,7 +205,7 @@ export default function App() {
 
   const triggerBackgroundAlert = async (customMessage) => {
     const primaryContacts = contacts.filter(c => c.isPrimary);
-    const alertMessage = customMessage || `[EMERGENCY WARNING] Marcus Thorne has triggered an SOS alert! Location: ${location.address} (${location.coords.lat}, ${location.coords.lng})`;
+    const alertMessage = customMessage || `[EMERGENCY WARNING] ${profile.name || 'User'} has triggered an SOS alert! Location: ${location.address} (${location.coords.lat}, ${location.coords.lng})`;
 
     console.log("Triggering background alerts to contacts...", primaryContacts);
 
@@ -301,6 +301,7 @@ export default function App() {
             activeService={activeService}
             setActiveService={setActiveService}
             location={location}
+            profile={profile}
             triggerBackgroundAlert={triggerBackgroundAlert}
           />
         )}
@@ -309,6 +310,7 @@ export default function App() {
             contacts={contacts} 
             setContacts={setContacts} 
             location={location}
+            profile={profile}
           />
         )}
         {activeTab === 'medical' && (

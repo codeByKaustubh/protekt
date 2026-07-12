@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export default function ContactsView({ contacts, setContacts, location }) {
+export default function ContactsView({ contacts, setContacts, location, profile }) {
   const [showModal, setShowModal] = useState(false);
   const [editingContact, setEditingContact] = useState(null);
   const [contactForm, setContactForm] = useState({ name: '', relationship: '', phone: '', isPrimary: false });
@@ -12,7 +12,7 @@ export default function ContactsView({ contacts, setContacts, location }) {
 
   const sendDeviceSMS = (contact) => {
     const cleanPhone = contact.phone.replace(/[^\d+]/g, '');
-    const defaultText = `[EMERGENCY WARNING] Marcus Thorne has triggered an SOS alert! Location: ${location.address} (${location.coords.lat}, ${location.coords.lng})`;
+    const defaultText = `[EMERGENCY WARNING] ${profile?.name || 'User'} has triggered an SOS alert! Location: ${location.address} (${location.coords.lat}, ${location.coords.lng})`;
     window.open(`sms:${cleanPhone}?body=${encodeURIComponent(defaultText)}`);
   };
 

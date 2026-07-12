@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-export default function SOSDashboard({ sosTriggered, setSosTriggered, activeService, setActiveService, location, triggerBackgroundAlert }) {
+export default function SOSDashboard({ sosTriggered, setSosTriggered, activeService, setActiveService, location, profile, triggerBackgroundAlert }) {
   const { coords, address, accuracy } = location;
   const [holdProgress, setHoldProgress] = useState(289); // SVG strokeDashoffset: starts at 289 (empty) -> 0 (full)
   const [isHolding, setIsHolding] = useState(false);
@@ -81,7 +81,7 @@ export default function SOSDashboard({ sosTriggered, setSosTriggered, activeServ
     }
 
     if (triggerBackgroundAlert) {
-      const alertMsg = `[EMERGENCY WARNING] Marcus Thorne has triggered a ${serviceName} dispatch alert! Location: ${location.address} (${location.coords.lat}, ${location.coords.lng})`;
+      const alertMsg = `[EMERGENCY WARNING] ${profile?.name || 'User'} has triggered a ${serviceName} dispatch alert! Location: ${location.address} (${location.coords.lat}, ${location.coords.lng})`;
       triggerBackgroundAlert(alertMsg);
     }
 
